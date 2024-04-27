@@ -1,0 +1,24 @@
+{
+  "persons": [
+    {
+      "id": "c4fd",
+      "name": "Arto Hellas",
+      "number": "040-123456"
+    },
+    {
+      "id": "d734",
+      "name": "Ada lovelace",
+      "number": "39-123-23414"
+    },
+    {
+      "id": "6f66",
+      "name": "Dan Abramov",
+      "number": "321541"
+    },
+    {
+      "id": "0329",
+      "name": "Tuomas Hirvonen",
+      "number": "0401577322"
+    }
+  ]
+}
