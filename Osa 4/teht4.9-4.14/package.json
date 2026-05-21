@@ -1,0 +1,28 @@
+{
+  "name": "teht4.1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development node --watch index.js",
+    "pretest": "docker compose up -d && sleep 2",
+    "test": "cross-env  NODE_ENV=test node --test",
+    "posttest": "docker compose down"
+  },
+  "author": "Tuomas Hirvonen",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "cors": "^2.8.5",
+    "cross-env": "^10.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "JSON": "^1.0.0",
+    "mongoose": "^8.3.4",
+    "nodemon": "^3.1.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.2.2"
+  }
+}
