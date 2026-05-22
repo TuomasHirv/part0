@@ -3,8 +3,11 @@ const { test, after, beforeEach } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
-const blog = require('../models/blog')
 const api = supertest(app)
+
+const blog = require('../models/blog')
+const User = require('../models/user')
+
 
 const initialBlogs = [
   {
@@ -21,13 +24,33 @@ const initialBlogs = [
   },
 ]
 
+const newUser = {
+    username: 'Test user',
+    name: 'tester',
+    password: 'testPassword'
+}
+let token
+
+const postBlog = (blogData, authorization) => {
+    return api.post('/api/blogs')
+            .set('Authorization', `Bearer ${authorization}`)
+            .send(blogData)
+            .expect(201)
+}
+
 
 beforeEach(async () => {
     await blog.deleteMany({})
-    let blogObject = new blog(initialBlogs[0])
-    await blogObject.save()
-    blogObject = new blog(initialBlogs[1])
-    await blogObject.save()
+    await User.deleteMany({})
+    await api.post('/api/user')
+            .send(newUser)
+            .expect(201)
+    const loginToken = await api.post('/api/login')
+            .send({username: newUser.username, password: newUser.password})
+            .expect(200)
+    token = loginToken.body.token
+    await postBlog(initialBlogs[0], token)
+    await postBlog(initialBlogs[1], token)
 })
 
 after(async () => {
@@ -64,6 +87,7 @@ test('blogs can be added', async () => {
 
     await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -86,6 +110,7 @@ test('likes defaults to 0', async () => {
 
     await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -106,6 +131,7 @@ test('missing title results in status 400', async () => {
 
     await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(400)
         .expect('Content-Type', /application\/json/)
@@ -125,6 +151,7 @@ test('blogs can be deleted', async () => {
     const ids = response.body.map(r => r.id)
     await api
         .delete(`/api/blogs/${ids[0]}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(204)
 
 
@@ -154,4 +181,13 @@ test('likes can be updated', async () => {
     const updated = await blog.findById(ids[0])
 
     assert.strictEqual(updated.likes, likes[0] + 1)
+})
+
+test('returned blogs are populated', async () => {
+    const response = await api.get('/api/blogs')
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+    
+    console.log('FIRST BLOG IS THIS', response.body[0])
+    assert.ok(response.body[0].user && 'username' in response.body[0].user && 'id' in response.body[0].user)
 })
