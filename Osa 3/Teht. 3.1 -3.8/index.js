@@ -28,7 +28,10 @@ let persons = [
     number: "39-23-6423122"
   }
 ]
-let amount = persons.length
+const amount = () => {
+  return persons.length
+}
+
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
@@ -39,7 +42,11 @@ app.get('/api/persons', (request, response) => {
 
 
 app.get('/info', (request, response) => {
-  response.send("<p> Phonebook has info for <p>" + amount)
+  const infoText = `
+    <p>Phonebook has info for ${amount()} people</p>
+    <p>${new Date().toString()}</p>
+  `
+  response.send(infoText)
 })
 
 app.get('/api/persons/:id', (request, response) => {
@@ -51,31 +58,38 @@ app.get('/api/persons/:id', (request, response) => {
     response.status(404).end()
   }
 })
+
 app.delete('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
   persons = persons.filter(person => person.id !== id)
   response.status(204).end()
 })
 
-const generateId = () => {
-  const maxId = persons.length > 0
-    ? Math.max(...persons.map(n => n.id))
-    : 0
-  return maxId + 1
-}
-
 
 app.post('/api/persons', (request, response) => {
   const person = request.body
   console.log(request.body)
-  if(!person.name){
+  if(!person.name || !person.number){
     return response.status(400).json({ 
-      error: 'name missing'+ request.body 
+      error: 'name or number missing'
     })
-
   }
+  const nameExists = persons.some(p => p.name === person.name);
+  if (nameExists) {
+        return response.status(400).json({ 
+      error: 'name has to be unique'
+    })
+  }
+
+  const numberExists = persons.some(p => p.number === person.number);
+  if (numberExists) {
+        return response.status(400).json({ 
+      error: 'number has to be unique'
+    })
+  }
+  
   const person_ = {
-    id: generateId(),
+    id: Math.floor(Math.random() * 999999),
     name: person.name,
     number: person.number,
   }
