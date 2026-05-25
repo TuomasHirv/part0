@@ -13,11 +13,17 @@ const setToken = newToken => {
 }
 
 const create = async (blog) => {
+  try {
   const config = {
     headers: { Authorization: token }
   }
 
   const response = await axios.post(baseUrl, blog, config)
   return response.data
+  } catch (error) {
+    console.log('Couldnt save blog', error.data)
+
+    throw error
+  }
 }
 export default { getAll, create, setToken}

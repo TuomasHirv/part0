@@ -3,6 +3,8 @@ import Blog from './components/Blog'
 import BlogForm from './components/BlogCreateForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import Notification from './components/Message'
+
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -10,6 +12,10 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
+  const [errorMessage, setErrorMessage] = useState({
+    content: null,
+    type: false
+  })
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
@@ -38,6 +44,11 @@ const App = () => {
       ) 
     } catch (error) {
       console.log("Error couldn't login", error)
+      setErrorMessage({
+        content: 'Wrong username or password',
+        type: 'alert'
+      })
+      setTimeout(() => setErrorMessage(null), 2000)
     }
   }
 
@@ -51,8 +62,21 @@ const App = () => {
       blogService.setToken(user.token)
       const returnedBlog = await blogService.create(blogObject)
       setBlogs(blogs.concat(returnedBlog))
+
+      setErrorMessage({
+        content: 'Saved blog: '+ returnedBlog.title + '. Author: ' + returnedBlog.author,
+        type: 'notification'
+      })
+      setTimeout(() => setErrorMessage(null), 2000)
+
     } catch (error) {
       console.error('Error creating blog: ', error)
+
+      setErrorMessage({
+        content: 'Couldnt save blog:',
+        type: 'alert'
+      })
+      setTimeout(() => setErrorMessage(null), 2000)
     }
   }
 
@@ -60,6 +84,7 @@ const App = () => {
     return (
       <div>
         <h2>Login</h2>
+        <Notification message={errorMessage} />
         <form onSubmit={handleLogin}>
           <div>
             <label>
@@ -90,6 +115,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
+      <Notification message={errorMessage} />
       <p>Logged in as: {user.name}</p>
       <button onClick={handleLogout}>
         Log out
