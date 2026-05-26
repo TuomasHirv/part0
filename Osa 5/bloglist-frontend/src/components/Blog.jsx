@@ -20,10 +20,12 @@ const Blog = ({ blog, onLike, onDelete, userID }) => {
 
   return (
     <div style={blogStyle}>
-      <div style={minimal}>
+      {minimized ? (
+        <div>
         {blog.title} {blog.author} <button onClick={() => setBlogMinimized(false)}> show </button>
-      </div>
-      <div style={verbose}>
+        </div>
+      ) : (
+        <div>
           <p style={{ margin: 0 }}>Title: {blog.title} <button onClick={() => setBlogMinimized(true)}> hide </button></p>
           <p style={{ margin: 0 }}>URL: {blog.url}</p>
           <p style={{ margin: 0 }}>Likes: {blog.likes} <button onClick={() => onLike(blog.id)}> Like </button></p>
@@ -31,7 +33,8 @@ const Blog = ({ blog, onLike, onDelete, userID }) => {
           {userID === blog.user?.id && (
           <button onClick={() => onDelete(blog.id)}> Delete </button>
           )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

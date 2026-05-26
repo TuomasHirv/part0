@@ -31,7 +31,7 @@ const BlogForm = ({ createBlog }) => {
                 </div>
 
                 <div>
-                    <label htmlFor="title"> Author: </label>
+                    <label htmlFor="author"> Author: </label>
                     <input
                     id="author"
                     type="text"
@@ -43,7 +43,7 @@ const BlogForm = ({ createBlog }) => {
                 </div>
 
                 <div>
-                    <label htmlFor="title"> Url: </label>
+                    <label htmlFor="url"> Url: </label>
                     <input
                     id="url"
                     type="text"
