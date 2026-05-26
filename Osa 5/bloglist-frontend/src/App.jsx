@@ -14,7 +14,6 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [blogFormVisible, setBlogFormVisible] = useState(false)
 
   const [errorMessage, setErrorMessage] = useState({
     content: null,
@@ -50,7 +49,7 @@ const App = () => {
       setPassword('')
       window.localStorage.setItem(
         'loggedUser', JSON.stringify(user)
-      ) 
+      )
     } catch (error) {
       console.log("Error couldn't login", error)
       setErrorMessage({
@@ -66,7 +65,7 @@ const App = () => {
 
     try {
       const updatedBlog = { ...blogToUpdate, likes: blogToUpdate.likes + 1 }
-      const response = await blogService.like(id, blogToUpdate.likes)
+      await blogService.like(id, blogToUpdate.likes)
       const updatedList = blogs.map(blog => blog.id === id ? updatedBlog : blog)
       const sortedList = [...updatedList].sort((a, b) => b.likes - a.likes)
 
@@ -113,7 +112,7 @@ const App = () => {
       if (window.confirm("Are you sure you want to delete this blog?")) {
       try {
         blogService.setToken(user.token)
-        const response = await blogService.remove(id)
+        await blogService.remove(id)
 
         const updatedList = blogs.filter(blog => blog.id !== id)
         setBlogs(updatedList)

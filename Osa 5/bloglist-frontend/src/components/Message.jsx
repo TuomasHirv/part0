@@ -1,13 +1,13 @@
 import '../index.css'
 
-const Notification = ({message}) => {
+const Notification = ({ message }) => {
 
     if (!message || !message.content) {
       return null
     }
-  
+
     return (
-      <div className= {message.type} >
+      <div className= { message.type } >
         {message.content}
       </div>
     )

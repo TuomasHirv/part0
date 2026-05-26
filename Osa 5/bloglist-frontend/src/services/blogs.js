@@ -51,4 +51,4 @@ const remove = async (id) => {
     throw error
   }
 }
-export default { getAll, create, setToken, like, remove}
+export default { getAll, create, setToken, like, remove }

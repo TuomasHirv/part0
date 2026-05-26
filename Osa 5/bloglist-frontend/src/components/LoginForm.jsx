@@ -1,5 +1,5 @@
 const LoginForm = (props) => {
-    return (      
+    return (
     <div>
         <h2>Login</h2>
         <form onSubmit={props.handleLogin}>
