@@ -65,7 +65,7 @@ const App = () => {
 
     try {
       const updatedBlog = { ...blogToUpdate, likes: blogToUpdate.likes + 1 }
-      await blogService.like(id, blogToUpdate.likes)
+      await blogService.like(id, updatedBlog.likes)
       const updatedList = blogs.map(blog => blog.id === id ? updatedBlog : blog)
       const sortedList = [...updatedList].sort((a, b) => b.likes - a.likes)
 

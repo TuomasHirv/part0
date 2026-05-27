@@ -8,7 +8,8 @@
     "dev": "cross-env NODE_ENV=development node --watch index.js",
     "pretest": "docker compose up -d && sleep 2",
     "test": "cross-env  NODE_ENV=test node --test --test-concurrency=1",
-    "posttest": "docker compose down"
+    "posttest": "docker compose down",
+    "test:server": "docker compose up -d && cross-env NODE_ENV=test node index.js"
   },
   "author": "Tuomas Hirvonen",
   "license": "UNLICENSED",

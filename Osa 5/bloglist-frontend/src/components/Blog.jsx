@@ -19,7 +19,7 @@ const Blog = ({ blog, onLike, onDelete, userID }) => {
   }
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className="blog-card" data-testid="blog-card">
       {minimized ? (
         <div>
         {blog.title} {blog.author} <button onClick={() => setBlogMinimized(false)}> show </button>
