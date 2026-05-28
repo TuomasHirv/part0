@@ -1,4 +1,5 @@
 import '../index.css'
+import Alert from '@mui/material/Alert';
 
 const Notification = ({ message }) => {
 
@@ -7,8 +8,16 @@ const Notification = ({ message }) => {
     }
 
     return (
-      <div className= { message.type } >
-        {message.content}
+      <div>
+        {message.type === 'notification' ? (
+        <Alert severity="success">
+          {message.content}
+        </Alert>) : (
+          <Alert severity="warning">
+            {message.content}
+          </Alert>
+        )
+        }
       </div>
     )
   }

@@ -16,6 +16,7 @@ const secondUser = {
 
 
 const loginHelper = async ({ username, password, page }) => {
+    await page.getByRole('link', { name: /login/i }).click();
     await page.getByLabel('username').fill(username);
     await page.getByLabel('password').fill(password);
 
@@ -23,13 +24,12 @@ const loginHelper = async ({ username, password, page }) => {
 }
 
 const createBlogHelper = async ({ title, author, url, page }) => {
-    await page.getByRole('button', { name: 'new blog' }).click();
+    await page.getByRole('link', { name: /new blog/i }).click();
     await page.getByLabel('Title:').fill(title);
     await page.getByLabel('Author:').fill(author);
     await page.getByLabel('Url:').fill(url);
 
     await page.getByRole('button', { name: /Create/i }).click();
-    await page.getByRole('button', { name: 'cancel' }).click();
 };
 
 test.describe('Blog app', () => {
@@ -56,6 +56,7 @@ test.describe('Blog app', () => {
     })
 
     test('Login form is shown', async ({ page }) => {
+        await page.getByRole('link', { name: /login/i }).click();
         await expect(page.getByLabel('username')).toBeVisible();
         await expect(page.getByLabel('password')).toBeVisible();
 
@@ -80,7 +81,7 @@ test.describe('Blog app', () => {
 
             await page.getByRole('button', { name: 'Log out' }).click();
 
-            await expect(page.getByRole('button', {name: 'login'})).toBeVisible();
+            await expect(page.getByRole('link', { name: /login/i })).toBeVisible();
         })
     })
 
@@ -90,7 +91,7 @@ test.describe('Blog app', () => {
             await createBlogHelper({ title: "test blog", author: "test author", url: "wasd", page: page })
 
             await expect(page.getByText('Saved blog: test blog. Author: test author')).toBeVisible();
-            await expect(page.getByText(/test blog test author/i)).toBeVisible();
+            await expect(page.getByRole('link', { name: /test blog/i })).toBeVisible();
         })
 
         test('Show button works', async ({ page }) => {
@@ -150,6 +151,7 @@ test.describe('Blog app', () => {
             await createBlogHelper({ title: "OmegaBlog", author: "blog", url: "wasd", page });
             const alphaBlog = page.locator('.blog-card', { hasText: 'AlphaBlog' });
             const omegaBlog = page.locator('.blog-card', { hasText: 'OmegaBlog' });
+            await page.locator('.blog-card').first().waitFor();
 
             let titles = await page.locator('.blog-card').allTextContents();
             expect(titles[0]).toContain('AlphaBlog');

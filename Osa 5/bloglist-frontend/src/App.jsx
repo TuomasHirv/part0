@@ -1,12 +1,32 @@
 import { useState, useEffect } from 'react'
+import {
+  BrowserRouter as Router,
+  Routes, Route, Link, useMatch, useNavigate
+} from 'react-router-dom'
+import { styled, Stack, Box } from '@mui/system';
+
+import Button from '@mui/material/Button';
+
+import Notification from './components/Message'
 import Blog from './components/Blog'
+import BlogDetails from './components/BlogDetails'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogCreateForm'
 import Togglable from './components/Togglable'
-
+import Navbar from './components/Navbar'
 import blogService from './services/blogs'
 import loginService from './services/login'
-import Notification from './components/Message'
+
+const Item = styled('div')(({ theme }) => ({
+  backgroundColor: '#fff',
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  borderRadius: 4,
+  ...theme.applyStyles('dark', {
+    backgroundColor: '#262B32',
+  }),
+}));
+
 
 
 const App = () => {
@@ -14,6 +34,9 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+  const [blogDetailsId, setBlogDetailsId] = useState('')
+  const navigate = useNavigate()
+
 
   const [errorMessage, setErrorMessage] = useState({
     content: null,
@@ -50,6 +73,7 @@ const App = () => {
       window.localStorage.setItem(
         'loggedUser', JSON.stringify(user)
       )
+      navigate('/')
     } catch (error) {
       console.log("Error couldn't login", error)
       setErrorMessage({
@@ -96,7 +120,7 @@ const App = () => {
         type: 'notification'
       })
       setTimeout(() => setErrorMessage(null), 2000)
-
+      navigate('/')
     } catch (error) {
       console.error('Error creating blog: ', error)
 
@@ -107,6 +131,7 @@ const App = () => {
       setTimeout(() => setErrorMessage(null), 2000)
     }
   }
+  
 
   const handleDelete = async (id) => {
       if (window.confirm("Are you sure you want to delete this blog?")) {
@@ -121,7 +146,7 @@ const App = () => {
           content: 'Deleted Blog',
           type: 'notification'
         })
-
+        navigate('/')
       } catch (error) {
         console.error('Error deleting blog: ', error)
 
@@ -133,41 +158,73 @@ const App = () => {
       }
     }
   }
-
-  if (user == null) {
-    return (
-      <div>
-        <Notification message={errorMessage} />
-        <LoginForm
-          username = { username }
-          password = { password }
-          handleUsernameChange = {({ target }) => setUsername(target.value)}
-          handlePasswordChange = {({ target }) => setPassword(target.value)}
-          handleLogin = {handleLogin}
-        />
-      </div>
-    )
+  const padding = {
+    padding: 5
   }
 
-  return (
-    <div>
-      <h2>blogs</h2>
-      <Notification message={errorMessage} />
-      <p>Logged in as: {user.name}</p>
-      <button onClick={handleLogout}>
-        Log out
-      </button>
+  const match = useMatch('/blogs/:id')
+  const blog = match
+    ? blogs.find(blog => blog.id === match.params.id)
+    : null
 
-      <h2>create new</h2>
-      <Togglable buttonLabel="new blog">
-        <BlogForm createBlog={addBlog}/>
-      </Togglable>
-      <div>
-        {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} onLike={handleLike} onDelete={handleDelete} userID={user?.user}/>
-        )}
-      </div>
+  return (
+    <Stack>
+    <div>
+      <Navbar user={user} handleLogout={handleLogout} />
+      <Routes>
+        <Route path="/" element={
+          <div>
+            <h2>blogs</h2>
+            {user != null  ? (
+              <p>Logged in as: {user?.name}</p>
+            ) : (
+              null
+            )}
+            
+            <Notification message={errorMessage} />
+            
+                {blogs.map(blog =>
+                <Box sx={{ width: '30%', border: 1 }}>
+                  <Stack spacing={2}>
+                    <Item> <Blog key={blog.id} blog={blog} onLike={handleLike} onDelete={handleDelete} userID={user?.user}/> </Item>
+                  </Stack>
+                </Box>
+                )}
+
+          </div>
+        } />
+        <Route path="/create" element={
+          <div>
+            <h2>create new</h2>
+            {user != null ? (
+              <p>Logged in as: {user?.name}</p>
+            ) : (
+              null
+            )}
+            <Notification message={errorMessage} />
+            <BlogForm createBlog={addBlog}/>
+          </div>
+        } />
+        <Route path="/login" element={
+          <div>
+            <Notification message={errorMessage} />
+            <LoginForm
+              username = { username }
+              password = { password }
+              handleUsernameChange = {({ target }) => setUsername(target.value)}
+              handlePasswordChange = {({ target }) => setPassword(target.value)}
+              handleLogin = {handleLogin}
+            />
+          </div>
+        } />
+        <Route path="/blogs/:id" element={
+          <div>
+            <BlogDetails blog={blog} onLike={handleLike} onDelete={handleDelete} userID={user?.user}/>
+          </div>
+        } />
+      </Routes>
     </div>
+    </Stack>
   )
 }
 
