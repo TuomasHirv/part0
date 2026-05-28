@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "test",
-    "dev": "nodemon index.js"
+    "dev": "node --watch index.js"
   },
   "author": "Tuomas Hirvonen",
   "license": "UNLICENSED",

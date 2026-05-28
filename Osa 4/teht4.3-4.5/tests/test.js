@@ -95,7 +95,7 @@ describe('total likes', () => {
 
 
     test('when list has nothing what is favourite', () => {
-        const result = listHelper.favoriteblog(empty)
+        const result = listHelper.favoriteBlog(empty)
         assert.strictEqual(result, null)
       })
 
@@ -111,12 +111,8 @@ describe('total likes', () => {
       ]
   
     test('when list has 1 blog what is favourite', () => {
-        const result = listHelper.favoriteblog(listWithOneBlog)
-        assert.notStrictEqual(result, {
-        title: 'Go To Statement Considered Harmful',
-        author: 'Edsger W. Dijkstra',
-        likes: 5
-})
+        const result = listHelper.favoriteBlog(listWithOneBlog)
+        assert.deepStrictEqual(result, { title: 'Go To Statement Considered Harmful', author: 'Edsger W. Dijkstra', likes: 5 })
     })
 
   })

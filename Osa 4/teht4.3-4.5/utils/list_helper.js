@@ -16,7 +16,7 @@ const totalLikes = (blogs) => {
     const amount = likeArray.reduce((preVal, curVal) => preVal + curVal);
     return amount
 }
-const favoriteblog = (blogs) => {
+const favoriteBlog = (blogs) => {
     const len = Object.keys(blogs).length
     console.log("lenght", Object.keys(blogs).length)
     if (len === 0) {
@@ -32,7 +32,9 @@ const favoriteblog = (blogs) => {
     }
     console.log(favourite)
     if (favourite === null) {
-        return null
+        if (blogs.length > 0) {
+            return blogs[0]
+        }
     }
     let _title = blogs[favourite].title
     let _author = blogs[favourite].author
@@ -46,5 +48,5 @@ const favoriteblog = (blogs) => {
 module.exports = {
     dummy,
     totalLikes,
-    favoriteblog
+    favoriteBlog
 }

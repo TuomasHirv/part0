@@ -116,6 +116,27 @@ test('missing title results in status 400', async () => {
     assert.strictEqual(response.body.length, initialBlogs.length)
 })
 
+test('missing url results in status 400', async () => {
+    const newBlog = {
+        title: "test 86509219",
+        author: "in test",
+        likes: 0,
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
+        .expect('Content-Type', /application\/json/)
+
+
+    const response = await api.get('/api/blogs')
+
+    assert.strictEqual(response.body.length, initialBlogs.length)
+})
+
+
+
 test('blogs can be deleted', async () => {
     const response = await api.get('/api/blogs')
         .expect(200)

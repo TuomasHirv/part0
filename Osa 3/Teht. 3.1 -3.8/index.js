@@ -4,6 +4,14 @@ var morgan = require('morgan')
 const app = express()
 app.use(cors())
 app.use(express.json())
+morgan.token('body', (request) => {
+  if (request.method === 'POST') {
+    return JSON.stringify(request.body)
+  }
+
+  return ''
+})
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 const http = require('http')
 
 let persons = [
@@ -68,7 +76,6 @@ app.delete('/api/persons/:id', (request, response) => {
 
 app.post('/api/persons', (request, response) => {
   const person = request.body
-  console.log(request.body)
   if(!person.name || !person.number){
     return response.status(400).json({ 
       error: 'name or number missing'
