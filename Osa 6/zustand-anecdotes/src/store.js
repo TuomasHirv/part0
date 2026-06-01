@@ -4,14 +4,14 @@ import anecdoteService from './services/anecdotes'
 
 const getId = () => (100000 * Math.random()).toFixed(0)
 
-const useAnecdoteStore = create((set) => ({
+const useAnecdoteStore = create((set, get) => ({
   anecdotes: [],
   filter: '',
   notification: '',
   timeOutId: null,
   actions: {
     vote: async (id) => {
-      const anecdote = useAnecdoteStore.getState().anecdotes.find(a => a.id === id)
+      const anecdote = get().anecdotes.find(a => a.id === id)
       try {
         const updated = await anecdoteService.vote(id, { ...anecdote, votes: anecdote.votes + 1 })
         set(state => ({
@@ -53,16 +53,18 @@ const useAnecdoteStore = create((set) => ({
   },
 }))
 
+export default useAnecdoteStore
+
 export const useNotification = () => useAnecdoteStore((state) => state.notification)
 
 export const useAnecdotes = () => {
   const returnable = useAnecdoteStore((state) => state.anecdotes)
   const filter = useAnecdoteStore((state) => state.filter)
   if (filter === '') {
-    return returnable
+    return returnable.toSorted((a, b) => b.votes - a.votes)
   }
   const filteredAnecdotes = returnable.filter((a) => a.content.toLowerCase().includes(filter.toLowerCase()))
-  return filteredAnecdotes
+  return filteredAnecdotes.toSorted((a, b) => b.votes - a.votes)
 }
 export const useAnecdoteActions = () => useAnecdoteStore((state) => state.actions)
 export const useFilter = () => useAnecdoteStore((state) => state.filter)
