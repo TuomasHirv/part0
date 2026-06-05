@@ -1,0 +1,26 @@
+{
+  "name": "bloglist",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install-all": "npm install --prefix bloglist-frontend && npm install --prefix backend",
+    "backend": "npm start --prefix Backend",
+    "frontend": "npm run dev --prefix bloglist-frontend",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "build": "npm run build --prefix bloglist-frontend",
+    "start": "npm start --prefix Backend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "concurrently": "^10.0.3",
+    "prettier": "3.8.3"
+  },
+  "dependencies": {
+    "zustand": "^5.0.14"
+  }
+}

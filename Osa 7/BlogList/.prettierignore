@@ -1,0 +1,9 @@
+.env
+node_modules/
+Backend/node_modules/
+bloglist-frontend/node_modules/
+
+Backend/dist/
+bloglist-frontend/dist/
+
+package-lock.json
