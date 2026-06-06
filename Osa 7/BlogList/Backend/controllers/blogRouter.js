@@ -1,78 +1,78 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog.js')
 const User = require('../models/user')
+const Comment = require('../models/comment.js')
 const jwt = require('jsonwebtoken')
 
 blogRouter.get('/', async (request, response, next) => {
   const blogs = await Blog.find({})
-    .populate('user', {username: 1, id: 1})
+    .populate('user', { username: 1, id: 1 })
+    .populate('comments', { content: 1 })
 
   return response.json(blogs)
 })
 
 blogRouter.post('/', async (request, response) => {
-    const { title, author, url, likes } = request.body
-    if (!request.token) {
-      return response.status(401).json({ error: 'no token' })
-    }
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!decodedToken.id) {
-      return response.status(401).json({ error: 'not authorized' })
-    }
-    const user = await User.findById(decodedToken.id)
+  const { title, author, url, likes } = request.body
+  if (!request.token) {
+    return response.status(401).json({ error: 'no token' })
+  }
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'not authorized' })
+  }
+  const user = await User.findById(decodedToken.id)
 
-    if (!user) {
-      return response.status(404).json({ error: 'No user found' })
+  if (!user) {
+    return response.status(404).json({ error: 'No user found' })
+  }
+  const blog = new Blog({
+    title,
+    author,
+    url,
+    likes,
+    user: user.id,
+  })
+  try {
+    const result = await blog.save()
+
+    user.blogs = user.blogs ? user.blogs.concat(result.id) : [result.id]
+
+    await user.save()
+    const populatedBlog = await result.populate('user')
+
+    response.status(201).json(populatedBlog)
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      response.status(400).json({ error: error.message })
+    } else {
+      response.status(500).json({ error: error.message })
     }
-    const blog = new Blog({
-      title,
-      author,
-      url,
-      likes,
-      user: user.id
-    })
-    try {
-      const result = await blog.save()
-
-      user.blogs = user.blogs ? 
-        user.blogs.concat(result.id)
-        : [result.id]
-
-      await user.save()
-      const populatedBlog = await result.populate('user')
-
-      response.status(201).json(populatedBlog)
-    }catch (error) {
-      if (error.name === 'ValidationError') {
-        response.status(400).json({ error: error.message})
-      } else {
-        response.status(500).json({ error: error.message})
-      }
-    }
+  }
 })
 
 blogRouter.delete('/:id', async (request, response) => {
   const id = request.params.id
 
-    if (!request.token) {
-      return response.status(401).json({ error: 'no token' })
-    }
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!decodedToken.id) {
-      return response.status(401).json({ error: 'no id' })
-    }
+  if (!request.token) {
+    return response.status(401).json({ error: 'no token' })
+  }
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'no id' })
+  }
   try {
     const result = await Blog.findById(id)
     if (!result) {
-      return response.status(404).json({ error: 'Not found'})
+      return response.status(404).json({ error: 'Not found' })
     }
     if (!result.user || result.user.toString() != decodedToken.id.toString()) {
-      return response.status(401).json({ error: "not authorized" })
+      return response.status(401).json({ error: 'not authorized' })
     }
-    const done = await Blog.deleteOne({ _id:id })
+    const done = await Blog.deleteOne({ _id: id })
     return response.status(204).end()
   } catch (error) {
-    response.status(400).json({ error: error})
+    response.status(400).json({ error: error })
   }
 })
 
@@ -81,14 +81,39 @@ blogRouter.put('/:id', async (request, response) => {
 
   const { likes } = request.body
 
-  const updatedBlog = await Blog.findByIdAndUpdate(
-    id,
-    { likes: likes },
-  )
+  const updatedBlog = await Blog.findByIdAndUpdate(id, { likes: likes })
   if (updatedBlog) {
     response.json(updatedBlog)
   } else {
     response.status(404).json({ error: 'not found' })
   }
 })
+
+blogRouter.post('/:id/comment', async (request, response) => {
+  const id = request.params.id
+  const { content } = request.body
+  const hostBlog = await Blog.findById(id)
+  if (!hostBlog) {
+    return response.status(404).json({ error: 'Failed to find blog' })
+  }
+  const comment = new Comment({
+    content: content,
+    blog: hostBlog.id,
+  })
+  try {
+    const result = await comment.save()
+    hostBlog.comments = hostBlog.comments
+      ? hostBlog.comments.concat(result.id)
+      : [result.id]
+    await hostBlog.save()
+    response.status(201).json(result)
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      response.status(400).json({ error: error.message })
+    } else {
+      response.status(500).json({ error: error.message })
+    }
+  }
+})
+
 module.exports = blogRouter

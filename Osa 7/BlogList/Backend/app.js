@@ -15,6 +15,7 @@ app.use(express.static(path.join(__dirname, 'dist')))
 const blogRouter = require('./controllers/blogRouter.js')
 const userRouter = require('./controllers/userRouter.js')
 const loginRouter = require('./controllers/loginRouter.js')
+const commentRouter = require('./controllers/commentRouter.js')
 const middleware = require('./middleware.js')
 
 app.use(middleware.tokenExtractor)

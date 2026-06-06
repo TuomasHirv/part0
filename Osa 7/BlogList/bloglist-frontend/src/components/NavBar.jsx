@@ -31,6 +31,10 @@ const NavBar = () => {
             home
           </Button>
 
+          <Button component={Link} to="/users" color="inherit">
+            users
+          </Button>
+
           {user !== null && (
             <Button component={Link} to="/create" color="inherit">
               new blog
