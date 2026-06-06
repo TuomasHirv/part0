@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -8,9 +7,11 @@ import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 
 import { useBlogs, useUser, useStoreActions } from '../BlogStore'
+import { UseField } from '../hooks'
+
 const BlogDetails = () => {
   const navigate = useNavigate()
-  const [comment, setComment] = useState('')
+  const { reset: resetComment, ...comment } = UseField('text')
   const blogsList = useBlogs()
   const { deleteBlog, createComment, likeBlog, setNotification } =
     useStoreActions()
@@ -35,11 +36,11 @@ const BlogDetails = () => {
   const handleComment = async (id, text) => {
     await createComment(id, text)
     setNotification('Succesfully created comment', 'notification')
-    setComment('')
+    resetComment()
   }
 
   const submitComment = (event) => {
-    void handleComment(blog.id, comment)
+    void handleComment(blog.id, comment.value)
   }
 
   return (
@@ -64,15 +65,6 @@ const BlogDetails = () => {
       </Box>
 
       <Typography variant="body1">Author: {blog.author}</Typography>
-      <h2>Comments</h2>
-      {blog.comments.map((comment) => (
-        <Box
-          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-          key={comment.id}
-        >
-          {comment.content}
-        </Box>
-      ))}
       {userID === blog.user?.id && (
         <Box sx={{ mt: 1 }}>
           <Button
@@ -85,18 +77,54 @@ const BlogDetails = () => {
         </Box>
       )}
 
-      <Box component="form" onSubmit={submitComment} sx={{ mt: 2 }}>
-        <TextField
-          label="Comment"
-          value={comment}
-          onChange={(event) => setComment(event.target.value)}
-          fullWidth
-          size="small"
-          sx={{ mb: 1 }}
-        />
-        <Button type="submit" variant="contained">
-          add comment
-        </Button>
+      <Box
+        sx={{
+          mt: 2,
+          p: 2,
+          borderRadius: 2,
+          bgcolor: 'primary.50',
+          border: 1,
+          borderColor: 'primary.100',
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 1, color: 'primary.dark' }}>
+          Comments
+        </Typography>
+
+        <Box
+          component="ul"
+          sx={{ listStyle: 'none', p: 0, m: 0, display: 'grid', gap: 1 }}
+        >
+          {blog.comments.map((comment) => (
+            <Box
+              component="li"
+              key={comment.id}
+              sx={{
+                px: 2,
+                py: 1,
+                borderRadius: 1.5,
+                bgcolor: 'background.paper',
+                border: 1,
+                borderColor: 'primary.100',
+              }}
+            >
+              {comment.content}
+            </Box>
+          ))}
+        </Box>
+
+        <Box component="form" onSubmit={submitComment} sx={{ mt: 2 }}>
+          <TextField
+            label="Comment"
+            fullWidth
+            size="small"
+            sx={{ mb: 1, bgcolor: 'background.paper' }}
+            {...comment}
+          />
+          <Button type="submit" variant="contained">
+            add comment
+          </Button>
+        </Box>
       </Box>
     </Box>
   )

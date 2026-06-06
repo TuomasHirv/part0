@@ -1,24 +1,29 @@
-import { useState } from 'react'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import { useStoreActions } from '../BlogStore'
 import { useNavigate } from 'react-router-dom'
+import { UseField } from '../hooks'
 const BlogForm = () => {
   const navigate = useNavigate()
   const { createBlog, setNotification } = useStoreActions()
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
+  const { reset: resetTitle, ...title } = UseField('text')
+  const { reset: resetAuthor, ...author } = UseField('text')
+  const { reset: resetUrl, ...url } = UseField('text')
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
+    const submittedTitle = title.value
 
-    createBlog({ title, author, url })
+    await createBlog({
+      title: submittedTitle,
+      author: author.value,
+      url: url.value,
+    })
 
-    setTitle('')
-    setAuthor('')
-    setUrl('')
-    setNotification('Succesfully created blog: ' + title, 'notification')
+    setNotification('Succesfully created blog: ' + submittedTitle, 'notification')
+    resetTitle()
+    resetAuthor()
+    resetUrl()
     navigate('/')
   }
 
@@ -30,13 +35,11 @@ const BlogForm = () => {
             variant="standard"
             label="Title"
             id="title"
-            type="text"
-            value={title}
             name="Title"
-            onChange={({ target }) => setTitle(target.value)}
             required
             margin="normal"
             fullWidth
+            {...title}
           />
         </div>
 
@@ -45,13 +48,11 @@ const BlogForm = () => {
             variant="standard"
             label="Author"
             id="author"
-            type="text"
-            value={author}
             name="Author"
-            onChange={({ target }) => setAuthor(target.value)}
             required
             margin="normal"
             fullWidth
+            {...author}
           />
         </div>
 
@@ -60,13 +61,11 @@ const BlogForm = () => {
             variant="standard"
             label="Url"
             id="url"
-            type="text"
-            value={url}
             name="Url"
-            onChange={({ target }) => setUrl(target.value)}
             required
             margin="normal"
             fullWidth
+            {...url}
           />
         </div>
 
